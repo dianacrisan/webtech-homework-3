@@ -6,8 +6,8 @@ const mysql = require('mysql2/promise')
 
 // TODO: change the credentials to fit your own
 // if user does not have the right to create, run (as root): GRANT ALL PRIVILEGES ON *.* TO 'app'@'localhost';
-const DB_USERNAME = 'app1'
-const DB_PASSWORD = 'welcome123'
+const DB_USERNAME = 'root'
+const DB_PASSWORD = 'password'
 
 let conn
 
@@ -48,6 +48,7 @@ let FoodItem = sequelize.define('foodItem', {
 
 const app = express()
 // TODO
+app.use(bodyParser.json());
 
 app.get('/create', async (req, res) => {
     try{
@@ -82,9 +83,34 @@ app.get('/food-items', async (req, res) => {
 app.post('/food-items', async (req, res) => {
     try{
         // TODO
+        if(Object.keys(req.body).length !== 0)
+        {
+            // let foodItem = await FoodItem.create(req.body)
+
+            //aici!!!
+            if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('category') || !req.body.hasOwnProperty('calories')) 
+            {
+                return res.status(400).json({message : 'malformed request'})
+            }
+            else if(req.body.calories < 0) 
+            {
+                return res.status(400).json({message : 'calories should be a positive number'})
+            }
+            else if(req.body.category.length <3 || req.body.category.length > 10)
+            {
+                return res.status(400).json({message : 'not a valid category'})
+            }
+            return res.status(201).json({message: 'created'})
+        }
+        else 
+        {
+            return res.status(400).json({message : 'body is missing'})
+        }
     }
-    catch(err){
-        // TODO
+    catch(err)
+    {
+        // res.status(500).json({ message: err });
+        console.log(err)
     }
 })
 
